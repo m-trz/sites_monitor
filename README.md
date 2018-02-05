@@ -1,4 +1,4 @@
-# sites_monitor
+# info
 Python tool monitoring sites availability.
 Sites can be configured using config.py stored in the same folder as sites_monitor.py script.
 Tool includes a basic HTTP server showing webpages status. It is avaliable at localhost:8000 by default.
