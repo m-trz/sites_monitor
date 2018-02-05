@@ -10,7 +10,7 @@ All results are logged to 'checks.log' file.
 Websites with tests to be checked can be configured in 'config.py' file.
 """
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentError
 import logging
 import logging.handlers
 
@@ -110,10 +110,17 @@ def application(environ, start_response):
 
 def main():
 
+    def check_interval(value):
+        ivalue = int(value)
+        if ivalue < 1:
+            raise ArgumentError(
+                'Interval value should be an int bigger than 0')
+        return ivalue
     parser = ArgumentParser(description='Tool monitoring sites status')
-    parser.add_argument('--interval', type=int, default=INTERVAL,
-                        help=('Time interval in seconds between status ' +
-                              'checks (default: {})'.format(INTERVAL)))
+    parser.add_argument('--interval', type=check_interval, default=INTERVAL,
+                        help=('Time interval in seconds (1 or bigger) ' +
+                              'between status checks (default: {})'
+                              .format(INTERVAL)))
     parser.add_argument('--port', type=int, default=PORT,
                         help='Server port (default: {})'.format(PORT))
 
@@ -123,15 +130,15 @@ def main():
 
     logger.info('=' * 79)
     logger.info('Sites Monitor Running with time interval={}, port={}'
-                 .format(interval, port))
+                .format(interval, port))
 
     gevent.iwait(
         [gevent.spawn(status_worker, site, text, interval)
          for site, text in config.sites])
-    
-    logger.info('Running server at 127.0.0.1:{}'.format(port))
+
+    logger.info('Running server at localhost:{}'.format(port))
     logger.info('=' * 79)
-    
+
     WSGIServer(('', port), application).serve_forever()
 
 
