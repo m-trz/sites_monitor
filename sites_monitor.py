@@ -121,13 +121,17 @@ def main():
     interval = args.interval
     port = args.port
 
-    logging.info('Script starting with time interval={}, port={}'
+    logger.info('=' * 79)
+    logger.info('Sites Monitor Running with time interval={}, port={}'
                  .format(interval, port))
 
     gevent.iwait(
         [gevent.spawn(status_worker, site, text, interval)
          for site, text in config.sites])
-
+    
+    logger.info('Running server at 127.0.0.1:{}'.format(port))
+    logger.info('=' * 79)
+    
     WSGIServer(('', port), application).serve_forever()
 
 
